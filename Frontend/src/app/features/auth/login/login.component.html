@@ -1,0 +1,106 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>
+        <div class="logo">
+          <mat-icon>photo_camera</mat-icon>
+          <span>PicVerse</span>
+        </div>
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ showOtpForm ? 'Enter verification code' : 'Sign in to your account' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Email Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSendOtp()" *ngIf="!showOtpForm">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email address</mat-label>
+          <input matInput type="email" formControlName="email" placeholder="Enter your email">
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+            Email is required
+          </mat-error>
+          <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+            Please enter a valid email
+          </mat-error>
+        </mat-form-field>
+
+        <button 
+          mat-raised-button 
+          color="primary" 
+          type="submit" 
+          class="full-width login-button"
+          [disabled]="isLoading || loginForm.invalid">
+          <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+          <span *ngIf="!isLoading">Send OTP</span>
+        </button>
+      </form>
+
+      <!-- OTP Form -->
+      <form [formGroup]="otpForm" (ngSubmit)="onVerifyOtp()" *ngIf="showOtpForm">
+        <div class="otp-info">
+          <mat-icon>mark_email_read</mat-icon>
+          <p>We've sent a 6-digit code to <strong>{{ loginForm.get('email')?.value }}</strong></p>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Verification Code</mat-label>
+          <input 
+            matInput 
+            type="text" 
+            formControlName="otp" 
+            placeholder="Enter 6-digit code"
+            maxlength="6">
+          <mat-icon matSuffix>security</mat-icon>
+          <mat-error *ngIf="otpForm.get('otp')?.hasError('required')">
+            OTP is required
+          </mat-error>
+          <mat-error *ngIf="otpForm.get('otp')?.hasError('pattern')">
+            Please enter a valid 6-digit code
+          </mat-error>
+        </mat-form-field>
+
+        <button 
+          mat-raised-button 
+          color="primary" 
+          type="submit" 
+          class="full-width login-button"
+          [disabled]="isLoading || otpForm.invalid">
+          <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+          <span *ngIf="!isLoading">Verify & Sign In</span>
+        </button>
+
+        <div class="resend-section">
+          <p *ngIf="countdown > 0">
+            Resend code in {{ getCountdownDisplay() }}
+          </p>
+          <button 
+            mat-button 
+            color="accent" 
+            type="button"
+            (click)="onResendOtp()"
+            [disabled]="countdown > 0 || isLoading">
+            Resend OTP
+          </button>
+        </div>
+
+        <button 
+          mat-button 
+          type="button"
+          (click)="showOtpForm = false"
+          class="back-button">
+          <mat-icon>arrow_back</mat-icon>
+          Back to email
+        </button>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <div class="auth-links">
+        <p>Don't have an account? <a routerLink="/register" class="link">Sign up</a></p>
+      </div>
+    </mat-card-actions>
+  </mat-card>
+</div>

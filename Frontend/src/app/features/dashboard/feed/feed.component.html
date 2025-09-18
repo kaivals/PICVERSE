@@ -1,0 +1,170 @@
+<div class="feed-container">
+  <div class="feed-header">
+    <h2>Your Feed</h2>
+    <button mat-icon-button (click)="onRefresh()" [disabled]="isLoading">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <!-- Create Post Card -->
+  <mat-card class="create-post-card">
+    <mat-card-content>
+      <div class="create-post-content">
+        <img 
+          [src]="currentUser?.profilePictureUrl || 'assets/default-avatar.png'" 
+          alt="Your avatar"
+          class="user-avatar">
+        <button 
+          mat-stroked-button 
+          class="create-post-button"
+          routerLink="/create-post">
+          What's on your mind, {{ currentUser?.firstName || currentUser?.username }}?
+        </button>
+      </div>
+      
+      <mat-divider></mat-divider>
+      
+      <div class="create-post-actions">
+        <button mat-button class="action-button">
+          <mat-icon>photo_camera</mat-icon>
+          Photo
+        </button>
+        <button mat-button class="action-button">
+          <mat-icon>videocam</mat-icon>
+          Video
+        </button>
+        <button mat-button class="action-button">
+          <mat-icon>mood</mat-icon>
+          Feeling
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Posts -->
+  <div class="posts-container">
+    <mat-card 
+      class="post-card" 
+      *ngFor="let post of posts; trackBy: trackByPostId">
+      
+      <!-- Post Header -->
+      <mat-card-header>
+        <img 
+          mat-card-avatar 
+          [src]="post.user.profilePictureUrl || 'assets/default-avatar.png'" 
+          [alt]="post.user.username">
+        
+        <mat-card-title>
+          <a [routerLink]="['/profile', post.user.id]" class="user-link">
+            {{ post.user.firstName && post.user.lastName 
+                ? post.user.firstName + ' ' + post.user.lastName 
+                : post.user.username }}
+          </a>
+        </mat-card-title>
+        
+        <mat-card-subtitle>
+          {{ post.createdAt | date:'medium' }}
+        </mat-card-subtitle>
+
+        <button mat-icon-button class="post-menu-button">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </mat-card-header>
+
+      <!-- Post Content -->
+      <mat-card-content>
+        <p *ngIf="post.content" class="post-content">{{ post.content }}</p>
+        
+        <!-- Post Media -->
+        <div *ngIf="post.media && post.media.length > 0" class="post-media">
+          <div *ngFor="let media of post.media" class="media-item">
+            <img 
+              *ngIf="media.mediaType === 'image'" 
+              [src]="media.mediaUrl" 
+              [alt]="'Post image'"
+              class="post-image">
+            
+            <video 
+              *ngIf="media.mediaType === 'video'" 
+              [src]="media.mediaUrl" 
+              controls
+              class="post-video">
+            </video>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <!-- Post Actions -->
+      <mat-card-actions class="post-actions">
+        <div class="action-stats">
+          <span class="stat-item">
+            <mat-icon class="stat-icon">favorite</mat-icon>
+            {{ post.likesCount }}
+          </span>
+          <span class="stat-item">
+            <mat-icon class="stat-icon">comment</mat-icon>
+            {{ post.commentsCount }}
+          </span>
+          <span class="stat-item">
+            <mat-icon class="stat-icon">share</mat-icon>
+            {{ post.sharesCount }}
+          </span>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="action-buttons">
+          <button 
+            mat-button 
+            class="action-button"
+            [class.liked]="post.isLiked"
+            (click)="onPostLike(post)">
+            <mat-icon>{{ post.isLiked ? 'favorite' : 'favorite_border' }}</mat-icon>
+            Like
+          </button>
+          
+          <button 
+            mat-button 
+            class="action-button"
+            (click)="onPostComment(post)">
+            <mat-icon>comment</mat-icon>
+            Comment
+          </button>
+          
+          <button 
+            mat-button 
+            class="action-button"
+            (click)="onPostShare(post)">
+            <mat-icon>share</mat-icon>
+            Share
+          </button>
+        </div>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Load More Button -->
+  <div *ngIf="!isLoading && hasMorePosts" class="load-more-container">
+    <button 
+      mat-raised-button 
+      color="primary"
+      (click)="onLoadMore()">
+      Load More Posts
+    </button>
+  </div>
+
+  <!-- No Posts Message -->
+  <div *ngIf="!isLoading && posts.length === 0" class="no-posts-container">
+    <mat-icon class="no-posts-icon">photo_library</mat-icon>
+    <h3>No posts yet</h3>
+    <p>Follow some users or create your first post to see content here.</p>
+    <button mat-raised-button color="primary" routerLink="/create-post">
+      Create Post
+    </button>
+  </div>
+</div>
